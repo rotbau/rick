@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: helloworld-v2-ingress
+spec:
+  rules:
+  - host: hello-v2.rtbsystems.com
+    http:
+      paths:
+      -  pathType: Prefix  
+         path: /
+         backend:
+           service: 
+             name: helloworld-v1-11
+             port: 
+               number: 80
