@@ -154,3 +154,39 @@ Server name: tea-6fb46d899f-n4xhh
 Date: 20/May/2021:19:43:04 +0000
 URI: /
 ```
+
+## TLS HTTPproxy Ingress and permitting insecure
+
+This example covers assigning a TLS secret to the cafe.rtbsystems.com site but allowing the /coffee to be served insecure while /tea requires secure.
+
+- Clean up previous HTTPproxy object
+```kubectl delete -f 05-cafe-weight-httpproxy.yaml```
+
+- Deploy cafe TLS secret
+```kubectl apply -f 06-cafe-secret.yaml```
+
+- Deploy Contour HTTPproxy object with TLS and permit insecure
+```kubectl apply -f 07-cafe-tls-httpproxy.yaml```
+
+- Test to validate SSL is enforced on /tea service
+```curl -v --resolve cafe.rtbsystems.com:172.31.3.191 cafe.rtbsystems.com/tea```
+
+You will note you do not get to the /tea service but instead get an HTTP 301 stating the URI has a permanent redirect to https.
+```
+HTTP/1.1 301 Moved Permanently
+location: https://cafe.rtbsystems.com/tea
+```
+
+- Test to validate you do not need SSL for the /coffee service
+```curl -v --resolve cafe.rtbsystems.com:172.31.3.191 cafe.rtbsystems.com/coffee```
+
+This time you will not receive a HTTP 301 redirect but instead get the coffee service
+
+```
+HTTP/1.1 200 OK
+....
+Server address: 100.96.5.10:8080
+Server name: coffee-6f4b79b975-vpwbw
+Date: 20/May/2021:20:18:42 +0000
+URI: /coffee
+```

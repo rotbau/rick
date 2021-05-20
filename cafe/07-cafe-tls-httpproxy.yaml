@@ -4,7 +4,7 @@ metadata:
   name: tls-cafe-allow-insecure
 spec:
   virtualhost:
-    fqdn: cafe.vdoubleb.com
+    fqdn: cafe.rtbsystems.com
     tls:
       secretName: cafe-secret
   routes:
