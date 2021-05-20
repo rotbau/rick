@@ -46,9 +46,10 @@ cafe-ingress            <none>   cafe.rtbsystems.com       172.31.3.191   80    
 
 - Test ingress
 ```curl -v --resolve cafe.rtbsystems.com:172.31.3.191 cafe.rtbsystems.com/tea```
+or
 ```curl -v --resolve cafe.rtbsystems.com:172.31.3.191 cafe.rtbsystems.com/coffee```
 
-    - Output will look like
+    - Output will look like.  Note server name and URI at the end of the output.
 ```
     *   Trying 172.31.3.191...
 * TCP_NODELAY set
@@ -75,3 +76,81 @@ URI: /tea
 ```
 
 ### Deploy Contour/Envoy HTTPproxy Object
+
+Instead of the Kubernetes standard ingress you could deploy HTTPproxy object instead.  Functionality is the same.
+
+- Clean up previous ingress object
+```kubectl delete -f 02-cafe-ingress.yaml```
+
+- Deploy HTTPproxy object for applicaton
+```kubectl apply -f 03-cafe-httpproxy.yaml```
+
+- Validate HTTPproxy object is created
+```kubectl get httpproxy```
+```
+NAME              FQDN                   TLS SECRET   STATUS   STATUS DESCRIPTION
+cafe-ingress      cafe.rtbsystems.com                 valid    Valid HTTPProxy
+```
+
+- Test Ingress
+```curl -v --resolve cafe.rtbsystems.com:172.31.3.191 cafe.rtbsystems.com/tea```
+or
+```curl -v --resolve cafe.rtbsystems.com:172.31.3.191 cafe.rtbsystems.com/coffee```
+
+Output will be the same as above depending if you specified the /tea or /coffee URI.
+
+## Deploy HTTPProxy rewrite path object 
+
+This example show how to rewrite a path using the HTTPproxy from Contour.  This example stil has the /coffee and /tea URI, but also will rewrite the / URI to the coffee service because I like coffee more than tea.  This is just one example of how to use the path rewrite function.  More examples on the project contour site.
+
+- Clean up previous HTTPproxy object
+```kubectl delete -f 03-cafe-httpproxy.yaml```
+
+- Deploy HTTPproxy rewrite ingress
+```kubectl apply -f 04-cafe-rewrite-httpproxy.yaml```
+
+- Validate HTTPproxy object is created
+```kubectl get httpproxy```
+```
+NAME              FQDN                   TLS SECRET   STATUS   STATUS DESCRIPTION
+rewrite-ingress   cafe.rtbsystems.com                 valid    Valid HTTPProxy
+```
+- Test rewrite
+```curl -v --resolve cafe.rtbsystems.com:172.31.3.191 cafe.rtbsystems.com/```
+
+Note that you will get the coffee service even though you are going to the root URI. 
+
+## Deploy Blue/Green Weighted HTTPproxy object
+
+This example allows you to demonstrate the abilty to load balance between 2 different services.  Typicaly this is used for blue/green deployments where you have two different versions of a application.  You can use the httpproxy to deploy a weighted ingress to send a percentage of traffic to each service.  We can use the /tea and /coffee services to demonstrate this.  We also cover this using the hello-world app.
+
+- Clean up previous HTTPproxy object
+```kubectl delete -f 04-cafe-rewrite-httpproxy.yaml```
+
+- Deploy Contour HTTPproxy weighted ingress object
+```kubectl apply -f 05-cafe-weight-httpproxy.yaml```
+
+- Validate the HTTPproxy object is created
+```kubectl get httpproxy```
+```
+NAME              FQDN                  TLS SECRET   STATUS   STATUS DESCRIPTION
+weight-shifting   cafe.rtbsystems.com                valid    Valid HTTPProxy
+```
+
+-  Test Blue/Green deployment
+```curl -v --resolve cafe.rtbsystems.com:172.31.3.191 cafe.rtbsystems.com/```
+
+You will see the `Server name` change between coffee and tea pods with coffee being preferred 80% of the time in this example
+
+```
+Server address: 100.96.4.112:8080
+Server name: coffee-6f4b79b975-6gpx8
+Date: 20/May/2021:19:43:02 +0000
+URI: /
+```
+```
+Server address: 100.96.5.13:8080
+Server name: tea-6fb46d899f-n4xhh
+Date: 20/May/2021:19:43:04 +0000
+URI: /
+```

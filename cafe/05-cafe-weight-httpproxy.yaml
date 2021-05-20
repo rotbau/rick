@@ -4,7 +4,7 @@ metadata:
   name: weight-shifting
 spec:
   virtualhost:
-    fqdn: wcafe.vdoubleb.com
+    fqdn: cafe.rtbsystems.com
   routes:
     - services:
         - name: tea-svc
