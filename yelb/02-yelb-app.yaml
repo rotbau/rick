@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yelb-appserver
+  namespace: yelb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: yelb-appserver
+      tier: middletier
+      secgroup: yelb-app
+  template:
+    metadata:
+      labels:
+        app: yelb-appserver
+        tier: middletier
+        secgroup: yelb-app
+    spec:
+      containers:
+      - name: yelb-appserver
+        image: mreferre/yelb-appserver:0.5
+        ports:
+        - containerPort: 4567
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: yelb-appserver
+  labels:
+    app: yelb-appserver
+    tier: middletier
+    secgroup: yelb-app
+  namespace: yelb
+spec:
+  type: ClusterIP
+  ports:
+  - port: 4567
+  selector:
+    app: yelb-appserver
+    tier: middletier

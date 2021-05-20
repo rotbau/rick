@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-server
+  namespace: yelb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-server
+      tier: cache
+  template:
+    metadata:
+      labels:
+        app: redis-server
+        tier: cache
+        secgroup: yelb-db
+    spec:
+      containers:
+      - name: redis-server
+        image: redis:4.0.14
+        ports:
+        - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-server
+  labels:
+    app: redis-server
+    tier: cache
+    secgroup: yelb-db
+  namespace: yelb
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+  selector:
+    app: redis-server
+    tier: cache
