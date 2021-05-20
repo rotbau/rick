@@ -6,6 +6,7 @@ This demo uses 2 different container images (blue and green) to simulate upgradi
 
 1. Contour Ingress Controller up and running
 2. Access to container registry with the v1.10 and v1.11 container images running
+3. Load Balancer for Kubernetes to provide routeable IP for Envoy ServiceType Loadbalancer
 
 ## Deployment
 
@@ -29,7 +30,7 @@ service/helloworld-v1-11   ClusterIP   100.71.186.42   <none>        80/TCP     
 ```
 
 - Deploy Weighted Httpproxy Object (Contour weighted ingress)
-```kubectl apply -f 03-hello-weight-httproxy.yaml``
+```kubectl apply -f 03-hello-weight-httproxy.yaml```
 
 - Validate contour httpproxy object is created successfully
 ```kubectl get httpproxy```
