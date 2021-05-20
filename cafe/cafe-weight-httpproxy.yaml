@@ -1,0 +1,15 @@
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: weight-shifting
+spec:
+  virtualhost:
+    fqdn: wcafe.vdoubleb.com
+  routes:
+    - services:
+        - name: tea-svc
+          port: 80
+          weight: 20
+        - name: coffee-svc
+          port: 80
+          weight: 80

@@ -1,0 +1,27 @@
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: rewrite-ingress
+spec:
+  virtualhost:
+    fqdn: cafe.vdoubleb.com
+  routes:
+  - conditions:
+    - prefix: /tea
+    services:
+    - name: tea-svc
+      port: 80
+  - conditions:
+    - prefix: /coffee
+    services:
+    - name: coffee-svc
+      port: 80
+  - conditions:
+    - prefix: /
+    pathRewritePolicy:
+      replacePrefix:
+      - prefix: /
+        replacement: /coffee
+    services:
+    - name: coffee-svc
+      port: 80
